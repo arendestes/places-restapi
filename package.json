@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/arendestes/places-restapi/issues"
   },
-  "homepage": "https://github.com/arendestes/places-restapi#readme"
+  "homepage": "https://github.com/arendestes/places-restapi#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
 }
