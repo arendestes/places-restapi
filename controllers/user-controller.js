@@ -19,7 +19,7 @@ const signup = (req, res, next) => {
     const {userName, password, email} = req.body;
     const alreadyUser = DUMMY_USERS.find(user => user.email === email);
     if (alreadyUser){
-        res.json({message: 'There is already an account with this password.'});
+        return next(new error("There is anyready an account with this email.", 422));
     }
     const newUser = {userName, password, email, id: uuid.v4()};
     DUMMY_USERS.push(newUser);
