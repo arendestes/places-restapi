@@ -52,7 +52,7 @@ const getPlaceBypid = (req, res, next) => {
 const getPlacesByuid = (req, res, next) => {
     const returnID = req.params.uid;
     const places = USER_DUMMY_PLACES.filter(place => place.creator === returnID);
-    if (!places[0]) {
+    if (!places || places.length === 0) {
         return next(new HttpError('Could not find places with uid.', 404));
     }
     res.json({ places });
@@ -73,13 +73,13 @@ const updatePlace = (req, res, next) => {
     placeToUpdate.title = title;
     placeToUpdate.description = description;
     USER_DUMMY_PLACES[placeIndex] = placeToUpdate;
-    res.status(200).json({place: USER_DUMMY_PLACES[placeIndex]});
+    res.status(200).json({ place: USER_DUMMY_PLACES[placeIndex] });
 };
 
 const deletePlace = (req, res, next) => {
     const placeId = req.params.pid;
     USER_DUMMY_PLACES = USER_DUMMY_PLACES.filter(place => place.id !== placeId);
-    res.status(200).json({message: "Place deleted."})
+    res.status(200).json({ message: "Place deleted." })
 };
 
 exports.getPlaceBypid = getPlaceBypid;
