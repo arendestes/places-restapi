@@ -1,49 +1,37 @@
+const uuid = require('uuid');
 
+const error = require('../models/http-error');
 
-let USER_DUMMY_PLACES = [
+let DUMMY_USERS = [
     {
-        id: 'p1',
-        title: 'Billy Bobbs Gator Farm and Petting Zoo',
-        description: 'Great place to wrestle a gator, pet a gator, ride a gator... pretty much anything goes.',
-        creator: 'u1',
-        address: '100 Swamp Britches Ln',
-        location: {
-            lat: 30.4457497,
-            lng: -91.1871759
-        },
-        image: 'https://images.unsplash.com/photo-1520542099817-0d19524eccca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
-    },
-    {
-        id: 'p3',
-        title: 'Billy Bobbs Gator Farm and mini golf',
-        description: 'Great place to wrestle a gator, pet a gator, ride a gator... pretty much anything goes.',
-        creator: 'u1',
-        address: '100 Swamp Britches Ln',
-        location: {
-            lat: 30.4457497,
-            lng: -91.1871759
-        },
-        image: 'https://images.unsplash.com/photo-1520542099817-0d19524eccca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
-    },
-    {
-        id: 'p2',
-        title: 'Ricky Roys Gator Farm and Petting Zoo',
-        description: 'Great place to wrestle a gator, pet a gator, ride a gator... pretty much anything goes.',
-        creator: 'u2',
-        address: '100 Swamp Britches Ln',
-        location: {
-            lat: 30.4457497,
-            lng: -91.1871759
-        },
-        image: 'https://images.unsplash.com/photo-1520542099817-0d19524eccca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
+        id: 'u1',
+        userName: "Clark Kent",
+        password: "Krypton",
+        email: "cKent@dailyplanet.com"
     }
 ];
 
 const getUsers = (req, res, next) => {
-    res.json({message: 'response'});
+    res.json({ message: DUMMY_USERS });
+};
+
+const signup = (req, res, next) => {
+    const {userName, password, email} = req.body;
+    const newUser = {userName, password, email, id: uuid.v4()};
+    DUMMY_USERS.push(newUser);
+    res.status(201).json({ users:  DUMMY_USERS});
+};
+
+const login = (req, res, next) => {
+    const {email, password} = req.body;
+    const user = DUMMY_USERS.find(user => email === user.email && password === user.password);
+    if(!user){
+        return next(new error("Email or password incorrect", 401));
+    }
+    res.json({ user: user });
 };
 
 
-
-
 exports.getUsers = getUsers;
+exports.signup = signup;
+exports.login = login;
