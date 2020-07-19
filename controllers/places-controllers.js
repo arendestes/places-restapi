@@ -1,6 +1,9 @@
-const HttpError = require('../models/http-error');
+
 const uuid = require('uuid');
 const { validationResult } = require('express-validator');
+
+const HttpError = require('../models/http-error');
+const getCoordsForAddress = require('../util/location');
 
 let USER_DUMMY_PLACES = [
     {
@@ -59,14 +62,23 @@ const getPlacesByuid = (req, res, next) => {
     res.json({ places });
 }
 
-const createPlace = (req, res, next) => {
+const createPlace = async (req, res, next) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()){
         console.log(errors);
-        throw new HttpError("Please enter valid data in all fields.", 422);
+        return next( new HttpError("Please enter valid data in all fields.", 422));
     };
-    const { title, description, creator, address, location } = req.body;
-    const newPlace = { id: uuid.v4(), title, description, creator, address, location };
+    const { title, description, creator, address } = req.body;
+
+    let location;
+    try{
+        location = await getCoordsForAddress(address);
+    } catch (error){
+        return next(error);
+    }
+
+
+    const newPlace = { id: uuid.v4(), title, description, creator, address, location: location };
     USER_DUMMY_PLACES.push(newPlace);
     res.status(201).json({ place: newPlace });
 }
