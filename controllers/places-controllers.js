@@ -7,61 +7,40 @@ const HttpError = require('../models/http-error');
 const getCoordsForAddress = require('../util/location');
 const Place = require('../models/place');
 
-let USER_DUMMY_PLACES = [
-    {
-        id: 'p1',
-        title: 'Billy Bobbs Gator Farm and Petting Zoo',
-        description: 'Great place to wrestle a gator, pet a gator, ride a gator... pretty much anything goes.',
-        creator: 'u1',
-        address: '100 Swamp Britches Ln',
-        location: {
-            lat: 30.4457497,
-            lng: -91.1871759
-        },
-        image: 'https://images.unsplash.com/photo-1520542099817-0d19524eccca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
-    },
-    {
-        id: 'p3',
-        title: 'Billy Bobbs Gator Farm and mini golf',
-        description: 'Great place to wrestle a gator, pet a gator, ride a gator... pretty much anything goes.',
-        creator: 'u1',
-        address: '100 Swamp Britches Ln',
-        location: {
-            lat: 30.4457497,
-            lng: -91.1871759
-        },
-        image: 'https://images.unsplash.com/photo-1520542099817-0d19524eccca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
-    },
-    {
-        id: 'p2',
-        title: 'Ricky Roys Gator Farm and Petting Zoo',
-        description: 'Great place to wrestle a gator, pet a gator, ride a gator... pretty much anything goes.',
-        creator: 'u2',
-        address: '100 Swamp Britches Ln',
-        location: {
-            lat: 30.4457497,
-            lng: -91.1871759
-        },
-        image: 'https://images.unsplash.com/photo-1520542099817-0d19524eccca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
-    }
-];
 
-const getPlaceBypid = (req, res, next) => {
+
+const getPlaceBypid = async (req, res, next) => {
     const returnID = req.params.pid;
-    const place = USER_DUMMY_PLACES.find(place => place.id === returnID);
+    
+    let place;
+    try{
+        place = await Place.findById(returnID);
+    } catch(err){
+        const error = new HttpError("Could not get place from data base.", 500)
+        return next(error);
+    }
+    
     if (!place) {
         return next(new HttpError('Could not find place with pid.', 404));
     };
-    res.json({ place });
+    res.json({ place:  place.toObject({getters: true})});
 }
 
-const getPlacesByuid = (req, res, next) => {
+const getPlacesByuid = async (req, res, next) => {
     const returnID = req.params.uid;
-    const places = USER_DUMMY_PLACES.filter(place => place.creator === returnID);
+
+    let places;
+    try{
+        places = await Place.find({creator: returnID});
+    } catch(err){
+        const error = new HttpError("Could not find user places in database.");
+        return next(error);
+    };
+    
     if (!places || places.length === 0) {
         return next(new HttpError('Could not find places with uid.', 404));
     }
-    res.json({ places });
+    res.json({ places: places.map(place => place.toObject({getters: true})) });
 }
 
 const createPlace = async (req, res, next) => {
