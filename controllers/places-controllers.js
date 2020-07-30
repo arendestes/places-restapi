@@ -125,12 +125,24 @@ const updatePlace = async (req, res, next) => {
 
 
 
-const deletePlace = (req, res, next) => {
+const deletePlace = async (req, res, next) => {
     const placeId = req.params.pid;
-    if(!USER_DUMMY_PLACES.find(place => place.id === placeId)){
-        throw new HttpError("Could not find place to delete.", 404);
-    }
-    USER_DUMMY_PLACES = USER_DUMMY_PLACES.filter(place => place.id !== placeId);
+
+    let place;
+    try{
+        place = await Place.findById(placeId);
+    } catch(err){
+        const error = new HttpError("Could not delete place in database.", 500);
+        return next(error);
+    };
+    
+    try{
+        await place.remove();
+    } catch(err){
+        const error = new HttpError("Could not delete place in database.", 500);
+        return next(error);
+    };
+
     res.status(200).json({ message: "Place deleted." })
 };
 
