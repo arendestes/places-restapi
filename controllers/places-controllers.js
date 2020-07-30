@@ -1,9 +1,11 @@
 
 const uuid = require('uuid');
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 
 const HttpError = require('../models/http-error');
 const getCoordsForAddress = require('../util/location');
+const Place = require('../models/place');
 
 let USER_DUMMY_PLACES = [
     {
@@ -70,6 +72,7 @@ const createPlace = async (req, res, next) => {
     };
     const { title, description, creator, address } = req.body;
 
+
     let location;
     try{
         location = await getCoordsForAddress(address);
@@ -77,9 +80,19 @@ const createPlace = async (req, res, next) => {
         return next(error);
     }
 
+    const newPlace = new Place({
+        title, description, creator, address, location, image: 'https://images.unsplash.com/photo-1520542099817-0d19524eccca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
+    })
 
-    const newPlace = { id: uuid.v4(), title, description, creator, address, location: location };
-    USER_DUMMY_PLACES.push(newPlace);
+    try{
+        await newPlace.save();
+    } catch(err){
+        const error = new HttpError("Creating place failed. Try agin.", 500);
+        return next(error);
+    }
+    
+
+    
     res.status(201).json({ place: newPlace });
 }
 
@@ -113,3 +126,5 @@ exports.getPlacesByuid = getPlacesByuid;
 exports.createPlace = createPlace;
 exports.updatePlace = updatePlace;
 exports.deletePlace = deletePlace;
+
+

@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const placesRoutes = require('./routes/places-routes');
 const userRoutes = require('./routes/users-routes');
@@ -18,12 +19,17 @@ app.use((req, res, next) => {
     throw error;
 });
 
-app.use((error, req, res, next) =>{
-    if(res.headerSent){
+app.use((error, req, res, next) => {
+    if (res.headerSent) {
         return next(error);
     }
     res.status(error.code || 500)
-    res.json({message: error.message || 'An unknown error occurred.'})
+    res.json({ message: error.message || 'An unknown error occurred.' })
 });
 
-app.listen(5000);
+mongoose.connect("mongodb+srv://arend:mydummypassword@places-cluster0.61xrs.mongodb.net/placesdb?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true })
+.then(() => {
+    app.listen(5000);
+})
+.catch((err) => {console.log('connection error: ', err)});
+
