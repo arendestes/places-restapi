@@ -10,8 +10,9 @@ const placeSchema = new mongoose.Schema({
         required: true
     }, 
     creator: {
-        type: String,
-        required: true
+        type: mongoose.Types.ObjectId,
+        required: true,
+        ref: "User"
     }, address: {
         type: String,
         required: true

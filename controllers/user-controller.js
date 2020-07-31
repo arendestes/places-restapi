@@ -25,7 +25,7 @@ const signup = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return next(new error("Check your input. Some data is invalid.", 422));
     }
-    const { userName, password, email, places } = req.body;
+    const { userName, password, email } = req.body;
 
     let usedEmail;
     try {
@@ -40,7 +40,7 @@ const signup = async (req, res, next) => {
         return next(error);
     }
 
-    const newUser = new User({ userName, password, email, image: 'https://unsplash.com/photos/QS4KxdelN_4', places });
+    const newUser = new User({ userName, password, email, image: 'https://unsplash.com/photos/QS4KxdelN_4', places: [] });
 
     try {
         await newUser.save();
