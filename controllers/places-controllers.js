@@ -92,7 +92,7 @@ const updatePlace = async (req, res, next) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()){
         console.log(errors);
-        throw new HttpError("Please enter valid data in all fields.", 422);
+        return next(new HttpError("Please enter valid data in all fields.", 422));
     };
 
     const { title, description } = req.body;
