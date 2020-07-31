@@ -2,6 +2,7 @@ const uuid = require('uuid');
 const { validationResult } = require('express-validator');
 
 const error = require('../models/http-error');
+const User = require('../models/user');
 
 let DUMMY_USERS = [
     {
