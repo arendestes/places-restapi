@@ -5,17 +5,19 @@ const error = require('../models/http-error');
 const User = require('../models/user');
 const HttpError = require('../models/http-error');
 
-let DUMMY_USERS = [
-    {
-        id: 'u1',
-        userName: "Clark Kent",
-        password: "Krypton",
-        email: "cKent@dailyplanet.com"
-    }
-];
 
-const getUsers = (req, res, next) => {
-    res.json({ message: DUMMY_USERS });
+
+const getUsers = async (req, res, next) => {
+
+    let users;
+    try{
+        users = await User.find({}, '-password');
+    }catch(err){
+        const error = new HttpError("Could not find users.", 500);
+        return next(error);
+    }
+
+    res.json({ message:  users.map(user=> user.toObject({getters: true}))});
 };
 
 const signup = async (req, res, next) => {
@@ -55,12 +57,12 @@ const login = async (req, res, next) => {
 
     let user;
     try {
-        user = await User.findOne({email: email, password: password});
+        user = await User.findOne({email: email});
     } catch (err) {
         const error = new HttpError("Could not login. Please try agin later.");
         return next(error);
     };
-    if (!user) {
+    if (!user|| user.password !== password) {
         return next(new error("Email or password incorrect", 401));
     }
     res.json({ user: user.toObject({getters: true}).email });
