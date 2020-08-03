@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const HttpError = require('../models/http-error');
 const getCoordsForAddress = require('../util/location');
 const Place = require('../models/place');
+const User = require('../models/user');
 
 
 
@@ -59,6 +60,18 @@ const createPlace = async (req, res, next) => {
     };
     const { title, description, creator, address } = req.body;
 
+    let user;
+    try{
+        user = await User.findById(creator);
+    }catch(err){
+        const error = new HttpError('Creating place failed. Could not find creating user. Please try agin later.', 500);
+        return next(error);
+    };
+
+    if(!user){
+        const error = new HttpError("Could not find user creating place.", 404);
+        return next(error);
+    };
 
     let location;
     try{
@@ -71,8 +84,15 @@ const createPlace = async (req, res, next) => {
         title, description, creator, address, location, image: 'https://images.unsplash.com/photo-1520542099817-0d19524eccca?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
     })
 
+
     try{
-        await newPlace.save();
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await newPlace.save({session: sess});
+        user.places.push(newPlace);
+        await user.save({session: sess});
+        await sess.commitTransaction();
+        
     } catch(err){
         const error = new HttpError("Creating place failed. Try agin.", 500);
         return next(error);
