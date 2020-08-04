@@ -33,18 +33,18 @@ const getPlaceBypid = async (req, res, next) => {
 const getPlacesByuid = async (req, res, next) => {
     const returnID = req.params.uid;
 
-    let places;
+    let userWithPlaces;
     try{
-        places = await Place.find({creator: returnID});
+        userWithPlaces = await User.findById(returnID).populate('places');
     } catch(err){
         const error = new HttpError("Could not find user places in database.");
         return next(error);
     };
     
-    if (!places || places.length === 0) {
+    if (!userWithPlaces || userWithPlaces.places.length === 0) {
         return next(new HttpError('Could not find places with uid.', 404));
     }
-    res.json({ places: places.map(place => place.toObject({getters: true})) });
+    res.json({ places: userWithPlaces.places.map(place => place.toObject({getters: true})) });
 }
 
 
